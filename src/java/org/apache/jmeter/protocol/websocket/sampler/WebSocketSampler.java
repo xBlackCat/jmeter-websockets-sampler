@@ -276,12 +276,12 @@ public class WebSocketSampler extends AbstractSampler implements TestStateListen
         return getPropertyAsString("responsePattern");
     }
 
-    public void setCloseConnectionPattern(String closeConnectionPattern) {
-        setProperty("closeConnectionPattern", closeConnectionPattern);
+    public void setCloseConnectionPattern(boolean closeConnectionOnReceive) {
+        setProperty("closeConnectionOnReceive", closeConnectionOnReceive);
     }
 
-    public String getCloseConnectionPattern() {
-        return getPropertyAsString("closeConnectionPattern");
+    public boolean getCloseConnectionOnReceive() {
+        return getPropertyAsBoolean("closeConnectionPattern");
     }
 
     public void setProxyAddress(String proxyAddress) {

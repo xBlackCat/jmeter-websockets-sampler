@@ -43,7 +43,7 @@ public class SocketManager {
             socket = new SingleConnection(
                     webSocketClient,
                     sampler.getResponsePattern(),
-                    sampler.getCloseConnectionPattern(),
+                    sampler.getCloseConnectionOnReceive(),
                     sampler.getMessageBacklog()
             );
         }
@@ -70,7 +70,7 @@ public class SocketManager {
                         connectionId,
                         webSocketClient,
                         sampler.getResponsePattern(),
-                        sampler.getCloseConnectionPattern(),
+                        sampler.getCloseConnectionOnReceive(),
                         sampler.getMessageBacklog()
                 )
         );

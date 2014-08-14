@@ -27,6 +27,7 @@ public abstract class AConnection implements IConnection {
     protected static final Logger log = LoggingManager.getLoggerForClass();
 
     protected final int messageBacklog;
+    private final boolean disconnectOnReceive;
     protected WebSocketClient client;
     protected Queue<String> responseBacklog = new ConcurrentLinkedQueue<>();
     protected Integer error = 0;
@@ -36,23 +37,21 @@ public abstract class AConnection implements IConnection {
     protected final AtomicReference<Session> session = new AtomicReference<>();
     protected int messageCounter = 1;
     protected final Pattern responsePattern;
-    protected final Pattern disconnectPattern;
 
     public AConnection(
             WebSocketClient client,
             int messageBacklog,
             String responsePattern,
-            String disconnectPattern
+            boolean disconnectOnReceive
     ) {
         this.client = client;
         this.messageBacklog = messageBacklog;
-
+        this.disconnectOnReceive = disconnectOnReceive;
 
         logMessage.append("\n\n[Execution Flow]\n");
         logMessage.append(" - Opening new connection\n");
 
         this.responsePattern = buildPattern(responsePattern, "response message");
-        this.disconnectPattern = buildPattern(disconnectPattern, "disconnect");
     }
 
     private Pattern buildPattern(String patternTmpl, String title) {
@@ -62,9 +61,9 @@ public abstract class AConnection implements IConnection {
             logMessage.append(" - Using ").append(title).append(" pattern \"").append(pattern).append("\"\n");
             return pattern.isEmpty() ? null : Pattern.compile(pattern);
         } catch (Exception ex) {
-            logMessage.append(" - Invalid ").append(title).append(" regular expression pattern: ").append(ex.getLocalizedMessage()).append(
-                    "\n"
-            );
+            logMessage.append(" - Invalid ").append(title)
+                    .append(" regular expression pattern: ")
+                    .append(ex.getLocalizedMessage()).append("\n");
             log.error("Invalid " + title + " regular expression pattern: " + ex.getLocalizedMessage());
             return null;
         }
@@ -78,13 +77,15 @@ public abstract class AConnection implements IConnection {
         addResponseMessage("[Message " + (messageCounter++) + "]\n" + msg + "\n\n");
 
         if (responsePattern == null || responsePattern.matcher(msg).find()) {
-            logMessage.append("; matched response pattern").append(responsePattern.pattern()).append("\n");
+            logMessage.append("; matched response pattern");
+            if (responsePattern != null) {
+                logMessage.append(responsePattern.pattern());
+            }
+            logMessage.append("\n");
             messageLatch.countDown();
-        }
-        if (disconnectPattern != null && disconnectPattern.matcher(msg).find()) {
-            logMessage.append("; matched connection close pattern").append("\n");
-            messageLatch.countDown();
-            close(StatusCode.NORMAL, "Closed on pattern '" + disconnectPattern.pattern() + "'");
+            if (disconnectOnReceive) {
+                close(StatusCode.NORMAL, "Closed on receive");
+            }
         }
     }
 

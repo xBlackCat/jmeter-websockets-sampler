@@ -2,8 +2,6 @@ package org.apache.jmeter.protocol.websocket.gui;
 
 import org.apache.jmeter.config.gui.ArgumentsPanel;
 import org.apache.jmeter.protocol.http.gui.HTTPArgumentsPanel;
-import org.apache.jorphan.logging.LoggingManager;
-import org.apache.log.Logger;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -57,12 +55,11 @@ public class WebSocketSamplerPanel extends JPanel {
         requestPayloadEditorPane = new JEditorPane();
         JLabel lRequestData = new JLabel("Request data");
         streamingConnectionCheckBox = new JCheckBox();
-        JPanel jPanel5 = new JPanel();
-        JLabel jLabel7 = new JLabel();
+        JPanel paneResponse = new JPanel();
+        JLabel lResponsePattern = new JLabel();
         responsePatternTextField = new JTextField();
-        JLabel jLabel9 = new JLabel();
-        closeConnectionPatternTextField = new JTextField();
-        JLabel jLabel16 = new JLabel();
+        closeConnectionOnReceiveCheckBox = new JCheckBox("Close connection on receive");
+        JLabel lMessageBackLog = new JLabel();
         messageBacklogTextField = new JFormattedTextField(new NumberFormatter(NumberFormat.getIntegerInstance()));
         JPanel jPanel6 = new JPanel();
         JLabel jLabel10 = new JLabel();
@@ -314,30 +311,28 @@ public class WebSocketSamplerPanel extends JPanel {
                         )
         );
 
-        jPanel5.setBorder(BorderFactory.createTitledBorder("WebSocket Response"));
+        paneResponse.setBorder(BorderFactory.createTitledBorder("WebSocket Response"));
 
-        jLabel7.setText("Response pattern:");
+        lResponsePattern.setText("Response pattern:");
 
-        jLabel9.setText("Close connection pattern:");
+        lMessageBackLog.setText("Message backlog:");
 
-        jLabel16.setText("Message backlog:");
-
-        GroupLayout jPanel5Layout = new GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-                jPanel5Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        GroupLayout paneResponseLayout = new GroupLayout(paneResponse);
+        paneResponse.setLayout(paneResponseLayout);
+        paneResponseLayout.setHorizontalGroup(
+                paneResponseLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(
-                                jPanel5Layout.createSequentialGroup()
+                                paneResponseLayout.createSequentialGroup()
                                         .addContainerGap()
                                         .addGroup(
-                                                jPanel5Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                paneResponseLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                                         .addGroup(
-                                                                jPanel5Layout.createSequentialGroup()
-                                                                        .addComponent(jLabel7)
+                                                                paneResponseLayout.createSequentialGroup()
+                                                                        .addComponent(lResponsePattern)
                                                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                                         .addComponent(responsePatternTextField)
                                                                         .addGap(18, 18, 18)
-                                                                        .addComponent(jLabel16)
+                                                                        .addComponent(lMessageBackLog)
                                                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                                         .addComponent(
                                                                                 messageBacklogTextField,
@@ -348,25 +343,23 @@ public class WebSocketSamplerPanel extends JPanel {
                                                         )
                                                         .addGroup(
                                                                 GroupLayout.Alignment.TRAILING,
-                                                                jPanel5Layout.createSequentialGroup()
-                                                                        .addComponent(jLabel9)
-                                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                                                        .addComponent(closeConnectionPatternTextField)
+                                                                paneResponseLayout.createSequentialGroup()
+                                                                        .addComponent(closeConnectionOnReceiveCheckBox)
                                                         )
                                         )
                                         .addContainerGap()
                         )
         );
-        jPanel5Layout.setVerticalGroup(
-                jPanel5Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        paneResponseLayout.setVerticalGroup(
+                paneResponseLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(
-                                jPanel5Layout.createSequentialGroup()
+                                paneResponseLayout.createSequentialGroup()
                                         .addContainerGap()
                                         .addGroup(
-                                                jPanel5Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                paneResponseLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                                         .addGroup(
-                                                                jPanel5Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                                        .addComponent(jLabel16)
+                                                                paneResponseLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                                        .addComponent(lMessageBackLog)
                                                                         .addComponent(
                                                                                 messageBacklogTextField,
                                                                                 GroupLayout.PREFERRED_SIZE,
@@ -375,8 +368,8 @@ public class WebSocketSamplerPanel extends JPanel {
                                                                         )
                                                         )
                                                         .addGroup(
-                                                                jPanel5Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                                        .addComponent(jLabel7)
+                                                                paneResponseLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                                        .addComponent(lResponsePattern)
                                                                         .addComponent(
                                                                                 responsePatternTextField,
                                                                                 GroupLayout.PREFERRED_SIZE,
@@ -387,10 +380,9 @@ public class WebSocketSamplerPanel extends JPanel {
                                         )
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(
-                                                jPanel5Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                        .addComponent(jLabel9)
+                                                paneResponseLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                                         .addComponent(
-                                                                closeConnectionPatternTextField,
+                                                                closeConnectionOnReceiveCheckBox,
                                                                 GroupLayout.PREFERRED_SIZE,
                                                                 GroupLayout.DEFAULT_SIZE,
                                                                 GroupLayout.PREFERRED_SIZE
@@ -523,7 +515,7 @@ public class WebSocketSamplerPanel extends JPanel {
                                                                 Short.MAX_VALUE
                                                         )
                                                         .addComponent(
-                                                                jPanel5,
+                                                                paneResponse,
                                                                 GroupLayout.DEFAULT_SIZE,
                                                                 GroupLayout.DEFAULT_SIZE,
                                                                 Short.MAX_VALUE
@@ -583,7 +575,7 @@ public class WebSocketSamplerPanel extends JPanel {
                                         )
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(
-                                                jPanel5,
+                                                paneResponse,
                                                 GroupLayout.PREFERRED_SIZE,
                                                 GroupLayout.DEFAULT_SIZE,
                                                 GroupLayout.PREFERRED_SIZE
@@ -601,7 +593,7 @@ public class WebSocketSamplerPanel extends JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private JTextField closeConnectionPatternTextField;
+    private JCheckBox closeConnectionOnReceiveCheckBox;
     private JTextField connectionIdTextField;
     private JTextField connectionTimeoutTextField;
     private JTextField contentEncodingTextField;
@@ -622,12 +614,12 @@ public class WebSocketSamplerPanel extends JPanel {
     private JCheckBox streamingConnectionCheckBox;
     // End of variables declaration//GEN-END:variables
 
-    public void setCloseConnectionPattern(String closeConnectionPattern) {
-        closeConnectionPatternTextField.setText(closeConnectionPattern);
+    public void setCloseConnectionOnReceive(boolean closeConnectionOnReceive) {
+        closeConnectionOnReceiveCheckBox.setSelected(closeConnectionOnReceive);
     }
 
-    public String getCloseConnectionPattern() {
-        return closeConnectionPatternTextField.getText();
+    public boolean getCloseConnectionOnReceive() {
+        return closeConnectionOnReceiveCheckBox.isSelected();
     }
 
     public void setConnectionId(String connectionId) {
