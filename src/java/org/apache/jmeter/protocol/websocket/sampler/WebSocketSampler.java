@@ -76,11 +76,10 @@ public class WebSocketSampler extends AbstractSampler implements TestStateListen
                     sampleResult.setResponseCode("500");
                     sampleResult.setSuccessful(false);
                     sampleResult.sampleEnd();
-                    sampleResult.setResponseMessage(errorList.toString());
                     errorList.append(" - Connection couldn't be opened").append("\n");
+                    sampleResult.setResponseMessage(errorList.toString());
                     return sampleResult;
                 }
-
 
                 //Send message only if it is not empty
                 if (!payloadMessage.isEmpty()) {
@@ -276,12 +275,12 @@ public class WebSocketSampler extends AbstractSampler implements TestStateListen
         return getPropertyAsString("responsePattern");
     }
 
-    public void setCloseConnectionPattern(boolean closeConnectionOnReceive) {
+    public void setCloseConnectionOnReceive(boolean closeConnectionOnReceive) {
         setProperty("closeConnectionOnReceive", closeConnectionOnReceive);
     }
 
     public boolean getCloseConnectionOnReceive() {
-        return getPropertyAsBoolean("closeConnectionPattern");
+        return getPropertyAsBoolean("closeConnectionOnReceive");
     }
 
     public void setProxyAddress(String proxyAddress) {

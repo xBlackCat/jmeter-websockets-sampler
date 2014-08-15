@@ -103,7 +103,7 @@ public class WebSocketSamplerGui extends AbstractSamplerGui {
             sampler.setStreamingConnection(webSocketSamplerPanel.isStreamingConnection());
             sampler.setConnectionId(webSocketSamplerPanel.getConnectionId());
             sampler.setResponsePattern(webSocketSamplerPanel.getResponsePattern());
-            sampler.setCloseConnectionPattern(webSocketSamplerPanel.getCloseConnectionOnReceive());
+            sampler.setCloseConnectionOnReceive(webSocketSamplerPanel.getCloseConnectionOnReceive());
             sampler.setProxyAddress(webSocketSamplerPanel.getProxyAddress());
             sampler.setProxyPassword(webSocketSamplerPanel.getProxyPassword());
             sampler.setProxyPort(webSocketSamplerPanel.getProxyPort());

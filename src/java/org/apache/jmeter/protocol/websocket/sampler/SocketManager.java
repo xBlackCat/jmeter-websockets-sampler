@@ -36,43 +36,40 @@ public class SocketManager {
         sslContextFactory.setTrustAll(trustAll);
         WebSocketClient webSocketClient = new WebSocketClient(sslContextFactory);
 
-        AConnection socket;
+        AConnection connection;
         if (connectionId != null) {
-            socket = getSocketFromPool(sampler, connectionId, webSocketClient);
+            connection = getSocketFromPool(connectionId, webSocketClient);
         } else {
-            socket = new SingleConnection(
-                    webSocketClient,
-                    sampler.getResponsePattern(),
-                    sampler.getCloseConnectionOnReceive(),
-                    sampler.getMessageBacklog()
-            );
+            connection = new SingleConnection(webSocketClient);
         }
 
+
         int timeout = sampler.getConnectionTimeout() == 0 ? WebSocketSampler.DEFAULT_CONNECTION_TIMEOUT : sampler.getConnectionTimeout();
-        if (!socket.isConnected()) {
+        if (!connection.isConnected()) {
             webSocketClient.setConnectTimeout(timeout);
             webSocketClient.start();
             ClientUpgradeRequest request = new ClientUpgradeRequest();
-            webSocketClient.connect(socket, sampler.getUri(), request);
+            webSocketClient.connect(connection, sampler.getUri(), request);
         }
 
-        if (socket.awaitOpen(timeout, TimeUnit.MILLISECONDS)) {
-            return socket;
+        if (connection.awaitOpen(timeout, TimeUnit.MILLISECONDS)) {
+            if (!connection.isConnected() && connectionId != null) {
+                sockets.remove(connectionId);
+                return null;
+            }
+
+            connection.setContext(new Context(sampler));
+            return connection;
         } else {
             return null;
         }
     }
 
-    private KeepAliveConnection getSocketFromPool(WebSocketSampler sampler, String connectionId, WebSocketClient webSocketClient) {
-        return sockets.computeIfAbsent(
-                connectionId, s -> new KeepAliveConnection(
-                        this,
-                        connectionId,
-                        webSocketClient,
-                        sampler.getResponsePattern(),
-                        sampler.getCloseConnectionOnReceive(),
-                        sampler.getMessageBacklog()
-                )
-        );
+    private KeepAliveConnection getSocketFromPool(String connectionId, WebSocketClient webSocketClient) {
+        return sockets.computeIfAbsent(connectionId, s -> new KeepAliveConnection(this, connectionId, webSocketClient));
+    }
+
+    public void remove(String connectionId) {
+        sockets.remove(connectionId);
     }
 }

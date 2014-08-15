@@ -1,12 +1,12 @@
 package org.apache.jmeter.protocol.websocket.sampler;
 
-import org.apache.jmeter.engine.util.CompoundVariable;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.StatusCode;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketError;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
@@ -15,7 +15,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 /**
@@ -26,47 +28,24 @@ import java.util.regex.Pattern;
 public abstract class AConnection implements IConnection {
     protected static final Logger log = LoggingManager.getLoggerForClass();
 
-    protected final int messageBacklog;
-    private final boolean disconnectOnReceive;
+    private final Lock lock = new ReentrantLock();
+
     protected WebSocketClient client;
     protected Queue<String> responseBacklog = new ConcurrentLinkedQueue<>();
-    protected Integer error = 0;
+    protected AtomicInteger error = new AtomicInteger();
     protected StringBuffer logMessage = new StringBuffer();
-    protected CountDownLatch openLatch = new CountDownLatch(1);
-    protected CountDownLatch messageLatch = new CountDownLatch(1);
-    protected final AtomicReference<Session> session = new AtomicReference<>();
-    protected int messageCounter = 1;
-    protected final Pattern responsePattern;
+    protected final CountDownLatch openLatch = new CountDownLatch(1);
+    protected final ResettableCountDownLatch messageLatch = new ResettableCountDownLatch(1);
+    protected AtomicInteger messageCounter = new AtomicInteger(0);
 
-    public AConnection(
-            WebSocketClient client,
-            int messageBacklog,
-            String responsePattern,
-            boolean disconnectOnReceive
-    ) {
+    private IContext context = null;
+    protected Session session = null;
+
+    public AConnection(WebSocketClient client) {
         this.client = client;
-        this.messageBacklog = messageBacklog;
-        this.disconnectOnReceive = disconnectOnReceive;
 
         logMessage.append("\n\n[Execution Flow]\n");
         logMessage.append(" - Opening new connection\n");
-
-        this.responsePattern = buildPattern(responsePattern, "response message");
-    }
-
-    private Pattern buildPattern(String patternTmpl, String title) {
-        final String pattern = new CompoundVariable(patternTmpl).execute();
-
-        try {
-            logMessage.append(" - Using ").append(title).append(" pattern \"").append(pattern).append("\"\n");
-            return pattern.isEmpty() ? null : Pattern.compile(pattern);
-        } catch (Exception ex) {
-            logMessage.append(" - Invalid ").append(title)
-                    .append(" regular expression pattern: ")
-                    .append(ex.getLocalizedMessage()).append("\n");
-            log.error("Invalid " + title + " regular expression pattern: " + ex.getLocalizedMessage());
-            return null;
-        }
     }
 
     @OnWebSocketMessage
@@ -74,7 +53,17 @@ public abstract class AConnection implements IConnection {
         log.debug("Received message: " + msg);
         String length = " (" + msg.length() + " bytes)";
         logMessage.append(" - Received message #").append(messageCounter).append(length);
-        addResponseMessage("[Message " + (messageCounter++) + "]\n" + msg + "\n\n");
+        addResponseMessage("[Message " + (messageCounter.incrementAndGet()) + "]\n" + msg + "\n\n");
+
+        final Pattern responsePattern;
+        final boolean disconnectOnReceive;
+        lock.lock();
+        try {
+            responsePattern = context.getMessagePattern();
+            disconnectOnReceive = context.isCloseOnReceive();
+        } finally {
+            lock.unlock();
+        }
 
         if (responsePattern == null || responsePattern.matcher(msg).find()) {
             logMessage.append("; matched response pattern");
@@ -92,29 +81,44 @@ public abstract class AConnection implements IConnection {
     @OnWebSocketConnect
     public void onOpen(Session session) {
         logMessage.append(" - WebSocket connection has been opened").append("\n");
-        KeepAliveConnection.log.debug("Connect " + session.isOpen());
-        this.session.set(session);
-        openLatch.countDown();
+        log.debug("Connect " + session.isOpen());
+        lock.lock();
+        try {
+            this.session = session;
+            openLatch.countDown();
+        } finally {
+            lock.unlock();
+        }
     }
 
     @OnWebSocketClose
     public void onClose(int statusCode, String reason) {
         if (statusCode != 1000) {
-            KeepAliveConnection.log.error("Disconnect " + statusCode + ": " + reason);
+            log.error("Disconnect " + statusCode + ": " + reason);
             logMessage.append(" - WebSocket conection closed unexpectedly by the server: [");
             logMessage.append(statusCode);
             logMessage.append("] ");
             logMessage.append(reason);
             logMessage.append("\n");
-            error = statusCode;
+            error.set(statusCode);
         } else {
-            logMessage.append(" - WebSocket conection has been successfully closed by the server").append("\n");
-            KeepAliveConnection.log.debug("Disconnect " + statusCode + ": " + reason);
+            logMessage.append(" - WebSocket connection has been successfully closed by the server").append("\n");
+            log.debug("Disconnect " + statusCode + ": " + reason);
         }
 
         //Notify connection opening and closing latches of the closed connection
         openLatch.countDown();
         messageLatch.countDown();
+
+        onClose();
+    }
+
+    protected void onClose() {
+    }
+
+    @OnWebSocketError
+    public void onError(Session session, Throwable e) {
+        log("Got error: " + e.getMessage() + "\n");
     }
 
     /**
@@ -145,6 +149,7 @@ public abstract class AConnection implements IConnection {
             logMessage.append(" - Connection established").append("\n");
         } else {
             logMessage.append(" - Cannot connect to the remote server").append("\n");
+            onClose();
         }
 
         return res;
@@ -154,7 +159,13 @@ public abstract class AConnection implements IConnection {
      * @return the session
      */
     public Session getSession() {
-        return session.get();
+        lock.lock();
+        try {
+            return session;
+        } finally {
+            lock.unlock();
+        }
+
     }
 
     public boolean sendMessageSync(String message, int responseTimeout) throws IOException, InterruptedException {
@@ -195,7 +206,7 @@ public abstract class AConnection implements IConnection {
      * @return the error
      */
     public int getError() {
-        return error;
+        return error.get();
     }
 
     /**
@@ -203,7 +214,7 @@ public abstract class AConnection implements IConnection {
      */
     public String getLogMessage() {
         logMessage.append("\n\n[Variables]\n");
-        logMessage.append(" - Message count: ").append(messageCounter - 1).append("\n");
+        logMessage.append(" - Message count: ").append(messageCounter.get()).append("\n");
 
         return logMessage.toString();
     }
@@ -219,16 +230,28 @@ public abstract class AConnection implements IConnection {
         return getSession() != null;
     }
 
-    public void initialize() {
+    public void setContext(IContext ctx) {
         logMessage = new StringBuffer();
         logMessage.append("\n\n[Execution Flow]\n");
-        logMessage.append(" - Reusing exising connection\n");
-        error = 0;
-
-        this.messageLatch = new CountDownLatch(1);
+        logMessage.append(" - Reusing existing connection\n");
+        error.set(0);
+        messageLatch.reset();
+        lock.lock();
+        try {
+            context = ctx;
+        } finally {
+            lock.unlock();
+        }
     }
 
     private void addResponseMessage(String message) {
+        final int messageBacklog;
+        lock.lock();
+        try {
+            messageBacklog = context.getMessageBackLog();
+        } finally {
+            lock.unlock();
+        }
         while (responseBacklog.size() >= messageBacklog) {
             responseBacklog.poll();
         }

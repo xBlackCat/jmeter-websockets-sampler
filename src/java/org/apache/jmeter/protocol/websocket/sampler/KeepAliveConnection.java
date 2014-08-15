@@ -8,15 +8,8 @@ public class KeepAliveConnection extends AConnection {
     protected final SocketManager parent;
     private final String connectionId;
 
-    public KeepAliveConnection(
-            SocketManager parent,
-            String connectionId,
-            WebSocketClient client,
-            String responsePattern,
-            boolean closeConnectionPattern,
-            int messageBacklog
-    ) {
-        super(client, messageBacklog, responsePattern, closeConnectionPattern);
+    public KeepAliveConnection(SocketManager parent, String connectionId, WebSocketClient client) {
+        super(client);
         this.parent = parent;
         this.connectionId = connectionId;
     }
@@ -27,5 +20,10 @@ public class KeepAliveConnection extends AConnection {
 
     @Override
     public void close() {
+    }
+
+    @Override
+    public void onClose() {
+        parent.remove(connectionId);
     }
 }
