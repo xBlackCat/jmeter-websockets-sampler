@@ -59,15 +59,12 @@ public class WebSocketSampler extends AbstractSampler implements TestStateListen
         StringBuilder errorList = new StringBuilder();
         errorList.append("\n\n[Problems]\n");
 
-        boolean isOK = false;
-
         //Set the message payload in the Sampler
         String payloadMessage = getRequestPayload();
         sampleResult.setSamplerData(payloadMessage);
 
         //Could improve precision by moving this closer to the action
         sampleResult.sampleStart();
-
 
         try {
             try (IConnection connection = socketManager.get().getConnection(this)) {
@@ -330,11 +327,11 @@ public class WebSocketSampler extends AbstractSampler implements TestStateListen
             contentEncoding = EncoderCache.URL_ARGUMENT_ENCODING;
         }
         StringBuilder buf = new StringBuilder();
-        PropertyIterator iter = getQueryStringParameters().iterator();
+        PropertyIterator i = getQueryStringParameters().iterator();
         boolean first = true;
-        while (iter.hasNext()) {
-            HTTPArgument item = null;
-            Object objectValue = iter.next().getObjectValue();
+        while (i.hasNext()) {
+            HTTPArgument item;
+            Object objectValue = i.next().getObjectValue();
             try {
                 item = (HTTPArgument) objectValue;
             } catch (ClassCastException e) {

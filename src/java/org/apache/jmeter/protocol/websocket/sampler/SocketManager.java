@@ -24,8 +24,9 @@ public class SocketManager {
     public IConnection getConnection(WebSocketSampler sampler) throws Exception {
         final String connectionId = sampler.getConnectionId();
         if (connectionId != null) {
-            AConnection c = sockets.get(connectionId);
+            KeepAliveConnection c = sockets.get(connectionId);
             if (c != null) {
+                c.borrow();
                 c.setContext(new Context(sampler));
                 return c;
             }

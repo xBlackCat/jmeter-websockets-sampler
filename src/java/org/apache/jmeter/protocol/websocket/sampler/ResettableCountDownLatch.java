@@ -153,9 +153,9 @@ public class ResettableCountDownLatch {
                 int c = getState();
                 if (c == 0)
                     return false;
-                int nextc = c - 1;
-                if (compareAndSetState(c, nextc))
-                    return nextc == 0;
+                int nextC = c - 1;
+                if (compareAndSetState(c, nextC))
+                    return nextC == 0;
             }
         }
 

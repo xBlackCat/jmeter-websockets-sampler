@@ -95,7 +95,7 @@ public abstract class AConnection implements IConnection {
     public void onClose(int statusCode, String reason) {
         if (statusCode != 1000) {
             log.error("Disconnect " + statusCode + ": " + reason);
-            logMessage.append(" - WebSocket conection closed unexpectedly by the server: [");
+            logMessage.append(" - WebSocket connection closed unexpectedly by the server: [");
             logMessage.append(statusCode);
             logMessage.append("] ");
             logMessage.append(reason);
@@ -180,9 +180,6 @@ public abstract class AConnection implements IConnection {
         return messageLatch.await(responseTimeout, TimeUnit.MILLISECONDS);
     }
 
-
-    public abstract void close();
-
     public void close(int statusCode, String statusText) {
         //Closing WebSocket session
         if (getSession() != null) {
@@ -236,6 +233,7 @@ public abstract class AConnection implements IConnection {
         logMessage.append(" - Reusing existing connection\n");
         error.set(0);
         messageLatch.reset();
+        responseBacklog.clear();
         lock.lock();
         try {
             context = ctx;

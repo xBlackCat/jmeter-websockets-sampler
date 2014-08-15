@@ -18,7 +18,7 @@ class Context implements IContext {
     private final int messageBacklog;
 
     public Context(WebSocketSampler sampler) {
-        response = buildPattern(sampler.getResponsePattern(), "response");
+        response = buildPattern(sampler.getResponsePattern());
         closeOnReceive = sampler.getCloseConnectionOnReceive();
         messageBacklog = sampler.getMessageBacklog();
     }
@@ -38,13 +38,13 @@ class Context implements IContext {
         return messageBacklog;
     }
 
-    private Pattern buildPattern(String patternTmpl, String title) {
-        final String pattern = new CompoundVariable(patternTmpl).execute();
+    private Pattern buildPattern(String patternRegex) {
+        final String pattern = new CompoundVariable(patternRegex).execute();
 
         try {
             return pattern.isEmpty() ? null : Pattern.compile(pattern);
         } catch (Exception ex) {
-            log.error("Invalid " + title + " regular expression pattern: " + ex.getLocalizedMessage());
+            log.error("Invalid response regular expression pattern: " + ex.getLocalizedMessage());
             return null;
         }
     }
