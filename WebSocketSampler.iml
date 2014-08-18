@@ -7,12 +7,12 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="javax-websocket-client-impl-9.2.2.v20140723" level="project" />
-    <orderEntry type="library" name="avalon-framework-4.1.4" level="project" />
+    <orderEntry type="library" name="Jetty 9.2.2.v20140723" level="project" />
+    <orderEntry type="library" name="Apache JMeter 4.1.4" level="project" />
     <orderEntry type="module-library" scope="RUNTIME">
       <library>
         <CLASSES>
-          <root url="jar://C:/server/apache-jmeter-2.11/bin/ApacheJMeter.jar!/" />
+          <root url="jar://D:/server/apache-jmeter-2.11/bin/ApacheJMeter.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

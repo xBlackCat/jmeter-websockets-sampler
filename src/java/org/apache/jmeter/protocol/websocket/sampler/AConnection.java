@@ -106,9 +106,15 @@ public abstract class AConnection implements IConnection {
             log.debug("Disconnect " + statusCode + ": " + reason);
         }
 
-        //Notify connection opening and closing latches of the closed connection
         openLatch.countDown();
         messageLatch.countDown();
+
+        try {
+            client.stop();
+            logMessage.append(" - WebSocket client closed by the client").append("\n");
+        } catch (Exception e) {
+            logMessage.append(" - WebSocket client wasn't started (...that's odd)").append("\n");
+        }
 
         onClose();
     }
@@ -127,7 +133,6 @@ public abstract class AConnection implements IConnection {
     public String getResponseMessage() {
         StringBuilder responseMessage = new StringBuilder();
 
-        //Iterate through response messages saved in the responseBacklog cache
         responseBacklog.forEach(responseMessage::append);
 
         return responseMessage.toString();
@@ -187,15 +192,6 @@ public abstract class AConnection implements IConnection {
             logMessage.append(" - WebSocket session closed by the client").append("\n");
         } else {
             logMessage.append(" - WebSocket session wasn't started (...that's odd)").append("\n");
-        }
-
-
-        //Stopping WebSocket client; thanks m0ro
-        try {
-            client.stop();
-            logMessage.append(" - WebSocket client closed by the client").append("\n");
-        } catch (Exception e) {
-            logMessage.append(" - WebSocket client wasn't started (...that's odd)").append("\n");
         }
     }
 

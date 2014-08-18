@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="WebSocketSampler:jar">
-    <output-path>C:/server/apache-jmeter-2.11/lib/ext</output-path>
+    <output-path>D:/server/apache-jmeter-2.11/lib/ext</output-path>
     <root id="archive" name="WebSocketSampler.jar">
       <element id="module-output" name="WebSocketSampler" />
     </root>
