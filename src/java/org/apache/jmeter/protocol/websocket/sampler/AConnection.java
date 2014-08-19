@@ -124,7 +124,10 @@ public abstract class AConnection implements IConnection {
 
     @OnWebSocketError
     public void onError(Session session, Throwable e) {
-        log("Got error: " + e.getMessage() + "\n");
+        log("Got error in session: " + e.getMessage() + "\n");
+        error.set(500);
+        openLatch.countDown();
+        messageLatch.countDown();
     }
 
     /**
@@ -219,6 +222,7 @@ public abstract class AConnection implements IConnection {
     /**
      * @return the connected
      */
+    @Override
     public boolean isConnected() {
         return getSession() != null;
     }

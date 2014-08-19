@@ -20,4 +20,6 @@ public interface IConnection extends AutoCloseable {
     int getError();
 
     String getLogMessage();
+
+    boolean isConnected();
 }

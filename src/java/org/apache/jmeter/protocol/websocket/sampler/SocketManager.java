@@ -57,13 +57,15 @@ public class SocketManager {
         if (connection.awaitOpen(timeout, TimeUnit.MILLISECONDS)) {
             if (!connection.isConnected() && connectionId != null) {
                 sockets.remove(connectionId);
-                return null;
+                connection.log("Failed to connect to server");
+                return new ErrorConnection(connection.getLogMessage(), connection.getError());
             }
 
             connection.setContext(new Context(sampler));
             return connection;
         } else {
-            return null;
+            connection.log("Connection timeout is reached.");
+            return new ErrorConnection(connection.getLogMessage(), 408);
         }
     }
 

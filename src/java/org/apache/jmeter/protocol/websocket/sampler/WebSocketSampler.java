@@ -68,45 +68,40 @@ public class WebSocketSampler extends AbstractSampler implements TestStateListen
 
         try {
             try (IConnection connection = socketManager.get().getConnection(this)) {
-                if (connection == null) {
-                    //Couldn't open a connection, set the status and exit
-                    sampleResult.setResponseCode("500");
-                    sampleResult.setSuccessful(false);
-                    sampleResult.sampleEnd();
-                    errorList.append(" - Connection couldn't be opened").append("\n");
-                    sampleResult.setResponseMessage(errorList.toString());
-                    return sampleResult;
-                }
-
-                //Send message only if it is not empty
-                if (!payloadMessage.isEmpty()) {
-                    final int timeout = getResponseTimeout();
-                    if (!connection.sendMessageSync(payloadMessage, timeout == 0 ? DEFAULT_RESPONSE_TIMEOUT : timeout)) {
-                        connection.log("Response timeout is reached");
+                if (connection.isConnected()) {
+                    //Send message only if it is not empty
+                    if (!payloadMessage.isEmpty()) {
+                        final int timeout = getResponseTimeout();
+                        if (!connection.sendMessageSync(payloadMessage, timeout == 0 ? DEFAULT_RESPONSE_TIMEOUT : timeout)) {
+                            connection.log("Response timeout is reached");
+                        }
                     }
-                }
 
-                //If no response is received set code 204; actually not used...needs to do something else
-                final String responseMessage = connection.getResponseMessage();
-                if (responseMessage == null || responseMessage.isEmpty()) {
-                    sampleResult.setResponseCode("204");
-                }
+                    //If no response is received set code 204; actually not used...needs to do something else
+                    final String responseMessage = connection.getResponseMessage();
+                    if (responseMessage == null || responseMessage.isEmpty()) {
+                        sampleResult.setResponseCode("204");
+                    }
 
-                //Set sampler response code
-                if (connection.getError() != 0) {
-                    sampleResult.setSuccessful(false);
-                    sampleResult.setResponseCode(String.valueOf(connection.getError()));
+                    //Set sampler response code
+                    if (connection.getError() != 0) {
+                        sampleResult.setSuccessful(false);
+                        sampleResult.setResponseCode(String.valueOf(connection.getError()));
+                    } else {
+                        sampleResult.setResponseCodeOK();
+                        sampleResult.setSuccessful(true);
+                    }
+                    //set sampler response
+                    sampleResult.setResponseData(responseMessage, getContentEncoding());
                 } else {
-                    sampleResult.setResponseCodeOK();
-                    sampleResult.setSuccessful(true);
+                    //Couldn't open a connection, set the status and exit
+                    sampleResult.setResponseCode(String.valueOf(connection.getError()));
+                    sampleResult.setSuccessful(false);
+                    errorList.append(" - Connection couldn't be opened").append("\n");
                 }
 
-                //set sampler response
-                sampleResult.setResponseData(responseMessage, getContentEncoding());
                 sampleResult.sampleEnd();
-
-                String logMessage = connection.getLogMessage();
-                sampleResult.setResponseMessage(logMessage + errorList);
+                sampleResult.setResponseMessage(connection.getLogMessage() + errorList);
                 return sampleResult;
             }
         } catch (URISyntaxException e) {
