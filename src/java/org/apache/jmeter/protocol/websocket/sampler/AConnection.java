@@ -238,10 +238,10 @@ public abstract class AConnection implements IConnection {
         }
     }
 
-    public void init() {
+    public void init(String str) {
         logMessage = new StringBuffer();
         logMessage.append("\n\n[Execution Flow]\n");
-        logMessage.append(" - Reusing existing connection\n");
+        logMessage.append(str);
         error.set(0);
     }
 

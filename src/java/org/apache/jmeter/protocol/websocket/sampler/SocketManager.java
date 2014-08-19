@@ -27,6 +27,8 @@ public class SocketManager {
             KeepAliveConnection c = sockets.get(connectionId);
             if (c != null) {
                 c.borrow();
+                c.init(" - Reusing existing connection\n");
+                c.log("Connections in pool: " + sockets.size() + "\n");
                 c.setContext(new Context(sampler));
                 return c;
             }
@@ -47,7 +49,7 @@ public class SocketManager {
         } else {
             connection = new SingleConnection(webSocketClient);
         }
-        connection.init();
+        connection.init(" - Creating a new connection\n");
 
         connection.log("Connections in pool: " + sockets.size() + "\n");
 
