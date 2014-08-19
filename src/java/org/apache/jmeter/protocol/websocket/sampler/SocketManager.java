@@ -40,11 +40,16 @@ public class SocketManager {
 
         AConnection connection;
         if (connectionId != null) {
-            connection = getSocketFromPool(connectionId, webSocketClient);
+            connection = sockets.computeIfAbsent(
+                    connectionId,
+                    s -> new KeepAliveConnection(this, connectionId, webSocketClient)
+            );
         } else {
             connection = new SingleConnection(webSocketClient);
         }
+        connection.init();
 
+        connection.log("Connections in pool: " + sockets.size() + "\n");
 
         int timeout = sampler.getConnectionTimeout() == 0 ? WebSocketSampler.DEFAULT_CONNECTION_TIMEOUT : sampler.getConnectionTimeout();
         if (!connection.isConnected()) {
@@ -67,10 +72,6 @@ public class SocketManager {
             connection.log("Connection timeout is reached.");
             return new ErrorConnection(connection.getLogMessage(), 408);
         }
-    }
-
-    private KeepAliveConnection getSocketFromPool(String connectionId, WebSocketClient webSocketClient) {
-        return sockets.computeIfAbsent(connectionId, s -> new KeepAliveConnection(this, connectionId, webSocketClient));
     }
 
     public void remove(String connectionId) {

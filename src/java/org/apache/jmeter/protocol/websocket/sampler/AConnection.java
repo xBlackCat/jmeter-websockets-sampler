@@ -228,10 +228,6 @@ public abstract class AConnection implements IConnection {
     }
 
     public void setContext(IContext ctx) {
-        logMessage = new StringBuffer();
-        logMessage.append("\n\n[Execution Flow]\n");
-        logMessage.append(" - Reusing existing connection\n");
-        error.set(0);
         messageLatch.reset();
         responseBacklog.clear();
         lock.lock();
@@ -240,6 +236,13 @@ public abstract class AConnection implements IConnection {
         } finally {
             lock.unlock();
         }
+    }
+
+    public void init() {
+        logMessage = new StringBuffer();
+        logMessage.append("\n\n[Execution Flow]\n");
+        logMessage.append(" - Reusing existing connection\n");
+        error.set(0);
     }
 
     private void addResponseMessage(String message) {
