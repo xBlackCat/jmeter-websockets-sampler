@@ -31,15 +31,15 @@ public class WebSocketSamplerPanel extends JPanel {
     private void initComponents() {
 
         JPanel paneWebServer = new JPanel();
-        JLabel jLabel1 = new JLabel();
+        JLabel lServerName = new JLabel("Server Name or IP:");
         serverAddressTextField = new JTextField();
-        JLabel jLabel2 = new JLabel();
-        serverPortTextField = new JFormattedTextField(new NumberFormatter(NumberFormat.getIntegerInstance()));
+        JLabel lPortNumber = new JLabel("Port Number:");
+        serverPortTextField = new JFormattedTextField(getFormatter());
         JPanel paneTimeout = new JPanel();
         JLabel lConnection = new JLabel("Connection:");
-        connectionTimeoutTextField = new JFormattedTextField(new NumberFormatter(NumberFormat.getIntegerInstance()));
+        connectionTimeoutTextField = new JFormattedTextField(getFormatter());
         JLabel lResponse = new JLabel("Response:");
-        responseTimeoutTextField = new JFormattedTextField(new NumberFormatter(NumberFormat.getIntegerInstance()));
+        responseTimeoutTextField = new JFormattedTextField(getFormatter());
         JPanel paneRequest = new JPanel();
         JLabel lProtocol = new JLabel("Protocol [ws/wss]:");
         JLabel lPath = new JLabel("Path:");
@@ -60,22 +60,18 @@ public class WebSocketSamplerPanel extends JPanel {
         responsePatternTextField = new JTextField();
         closeConnectionOnReceiveCheckBox = new JCheckBox("Close connection on receive");
         JLabel lMessageBackLog = new JLabel();
-        messageBacklogTextField = new JFormattedTextField(new NumberFormatter(NumberFormat.getIntegerInstance()));
+        messageBacklogTextField = new JFormattedTextField(getFormatter());
         JPanel jPanel6 = new JPanel();
         JLabel jLabel10 = new JLabel();
         proxyAddressTextField = new JTextField();
         JLabel jLabel11 = new JLabel();
-        proxyPortTextField = new JFormattedTextField(new NumberFormatter(NumberFormat.getIntegerInstance()));
+        proxyPortTextField = new JFormattedTextField(getFormatter());
         JLabel jLabel12 = new JLabel();
         proxyUsernameTextField = new JTextField();
         JLabel jLabel13 = new JLabel();
         proxyPasswordTextField = new JTextField();
 
         paneWebServer.setBorder(BorderFactory.createTitledBorder("Web Server"));
-
-        jLabel1.setText("Server Name or IP:");
-
-        jLabel2.setText("Port Number:");
 
         GroupLayout paneWebServerLayout = new GroupLayout(paneWebServer);
         paneWebServer.setLayout(paneWebServerLayout);
@@ -84,11 +80,11 @@ public class WebSocketSamplerPanel extends JPanel {
                         .addGroup(
                                 paneWebServerLayout.createSequentialGroup()
                                         .addContainerGap()
-                                        .addComponent(jLabel1)
+                                        .addComponent(lServerName)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(serverAddressTextField)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jLabel2)
+                                        .addComponent(lPortNumber)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(
                                                 serverPortTextField,
@@ -106,14 +102,14 @@ public class WebSocketSamplerPanel extends JPanel {
                                         .addContainerGap()
                                         .addGroup(
                                                 paneWebServerLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                        .addComponent(jLabel1)
+                                                        .addComponent(lServerName)
                                                         .addComponent(
                                                                 serverAddressTextField,
                                                                 GroupLayout.PREFERRED_SIZE,
                                                                 GroupLayout.DEFAULT_SIZE,
                                                                 GroupLayout.PREFERRED_SIZE
                                                         )
-                                                        .addComponent(jLabel2)
+                                                        .addComponent(lPortNumber)
                                                         .addComponent(
                                                                 serverPortTextField,
                                                                 GroupLayout.PREFERRED_SIZE,
@@ -590,7 +586,16 @@ public class WebSocketSamplerPanel extends JPanel {
                                         .addContainerGap()
                         )
         );
-    }// </editor-fold>//GEN-END:initComponents
+    }
+
+    private static NumberFormatter getFormatter() {
+        final NumberFormat nf = NumberFormat.getIntegerInstance();
+        nf.setGroupingUsed(false);
+        nf.setMaximumFractionDigits(0);
+        nf.setParseIntegerOnly(true);
+        nf.setMaximumIntegerDigits(9);
+        return new NumberFormatter(nf);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private JCheckBox closeConnectionOnReceiveCheckBox;
@@ -612,7 +617,6 @@ public class WebSocketSamplerPanel extends JPanel {
     private JTextField serverAddressTextField;
     private JTextField serverPortTextField;
     private JCheckBox streamingConnectionCheckBox;
-    // End of variables declaration//GEN-END:variables
 
     public void setCloseConnectionOnReceive(boolean closeConnectionOnReceive) {
         closeConnectionOnReceiveCheckBox.setSelected(closeConnectionOnReceive);
