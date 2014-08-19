@@ -56,20 +56,11 @@ public class WebSocketSamplerPanel extends JPanel {
         JLabel lRequestData = new JLabel("Request data");
         streamingConnectionCheckBox = new JCheckBox();
         JPanel paneResponse = new JPanel();
-        JLabel lResponsePattern = new JLabel();
+        JLabel lResponsePattern = new JLabel("Response pattern:");
         responsePatternTextField = new JTextField();
         closeConnectionOnReceiveCheckBox = new JCheckBox("Close connection on receive");
-        JLabel lMessageBackLog = new JLabel();
+        JLabel lMessageBackLog = new JLabel("Message backlog:");
         messageBacklogTextField = new JFormattedTextField(getFormatter());
-        JPanel jPanel6 = new JPanel();
-        JLabel jLabel10 = new JLabel();
-        proxyAddressTextField = new JTextField();
-        JLabel jLabel11 = new JLabel();
-        proxyPortTextField = new JFormattedTextField(getFormatter());
-        JLabel jLabel12 = new JLabel();
-        proxyUsernameTextField = new JTextField();
-        JLabel jLabel13 = new JLabel();
-        proxyPasswordTextField = new JTextField();
 
         paneWebServer.setBorder(BorderFactory.createTitledBorder("Web Server"));
 
@@ -309,10 +300,6 @@ public class WebSocketSamplerPanel extends JPanel {
 
         paneResponse.setBorder(BorderFactory.createTitledBorder("WebSocket Response"));
 
-        lResponsePattern.setText("Response pattern:");
-
-        lMessageBackLog.setText("Message backlog:");
-
         GroupLayout paneResponseLayout = new GroupLayout(paneResponse);
         paneResponse.setLayout(paneResponseLayout);
         paneResponseLayout.setHorizontalGroup(
@@ -388,36 +375,36 @@ public class WebSocketSamplerPanel extends JPanel {
                         )
         );
 
-        jPanel6.setBorder(BorderFactory.createTitledBorder("Proxy Server (currently not supported by Jetty)"));
+        proxyAddressTextField = new JTextField();
+        proxyPortTextField = new JFormattedTextField(getFormatter());
+        proxyUsernameTextField = new JTextField();
+        proxyPasswordTextField = new JTextField();
+/*
+        JPanel paneProxy = new JPanel();
+        JLabel lProxyServer = new JLabel("Server Name or IP:");
+        JLabel lProxyPort = new JLabel("Port Number:");
+        JLabel lProxyUser = new JLabel("Username:");
+        JLabel lPassword = new JLabel("Password:");
 
-        jLabel10.setText("Server Name or IP:");
+        paneProxy.setBorder(BorderFactory.createTitledBorder("Proxy Server (currently not supported by Jetty)"));
 
         proxyAddressTextField.setEnabled(false);
-
-        jLabel11.setText("Port Number:");
-
         proxyPortTextField.setEnabled(false);
-
-        jLabel12.setText("Username:");
-
         proxyUsernameTextField.setEnabled(false);
-
-        jLabel13.setText("Password:");
-
         proxyPasswordTextField.setEnabled(false);
 
-        GroupLayout jPanel6Layout = new GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-                jPanel6Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        GroupLayout paneProxyLayout = new GroupLayout(paneProxy);
+        paneProxy.setLayout(paneProxyLayout);
+        paneProxyLayout.setHorizontalGroup(
+                paneProxyLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(
-                                jPanel6Layout.createSequentialGroup()
+                                paneProxyLayout.createSequentialGroup()
                                         .addContainerGap()
-                                        .addComponent(jLabel10)
+                                        .addComponent(lProxyServer)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(proxyAddressTextField)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jLabel11)
+                                        .addComponent(lProxyPort)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(
                                                 proxyPortTextField,
@@ -426,7 +413,7 @@ public class WebSocketSamplerPanel extends JPanel {
                                                 GroupLayout.PREFERRED_SIZE
                                         )
                                         .addGap(18, 18, 18)
-                                        .addComponent(jLabel12)
+                                        .addComponent(lProxyUser)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(
                                                 proxyUsernameTextField,
@@ -435,7 +422,7 @@ public class WebSocketSamplerPanel extends JPanel {
                                                 GroupLayout.PREFERRED_SIZE
                                         )
                                         .addGap(18, 18, 18)
-                                        .addComponent(jLabel13)
+                                        .addComponent(lPassword)
                                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(
                                                 proxyPasswordTextField,
@@ -446,26 +433,26 @@ public class WebSocketSamplerPanel extends JPanel {
                                         .addContainerGap()
                         )
         );
-        jPanel6Layout.setVerticalGroup(
-                jPanel6Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        paneProxyLayout.setVerticalGroup(
+                paneProxyLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(
-                                jPanel6Layout.createSequentialGroup()
+                                paneProxyLayout.createSequentialGroup()
                                         .addContainerGap()
                                         .addGroup(
-                                                jPanel6Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                paneProxyLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                                         .addGroup(
-                                                                jPanel6Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                                paneProxyLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                                                         .addComponent(
                                                                                 proxyUsernameTextField,
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 GroupLayout.DEFAULT_SIZE,
                                                                                 GroupLayout.PREFERRED_SIZE
                                                                         )
-                                                                        .addComponent(jLabel12)
+                                                                        .addComponent(lProxyUser)
                                                         )
                                                         .addGroup(
-                                                                jPanel6Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                                        .addComponent(jLabel11)
+                                                                paneProxyLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                                        .addComponent(lProxyPort)
                                                                         .addComponent(
                                                                                 proxyPortTextField,
                                                                                 GroupLayout.PREFERRED_SIZE,
@@ -474,15 +461,15 @@ public class WebSocketSamplerPanel extends JPanel {
                                                                         )
                                                         )
                                                         .addGroup(
-                                                                jPanel6Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                                                        .addComponent(jLabel10)
+                                                                paneProxyLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                                        .addComponent(lProxyServer)
                                                                         .addComponent(
                                                                                 proxyAddressTextField,
                                                                                 GroupLayout.PREFERRED_SIZE,
                                                                                 GroupLayout.DEFAULT_SIZE,
                                                                                 GroupLayout.PREFERRED_SIZE
                                                                         )
-                                                                        .addComponent(jLabel13)
+                                                                        .addComponent(lPassword)
                                                                         .addComponent(
                                                                                 proxyPasswordTextField,
                                                                                 GroupLayout.PREFERRED_SIZE,
@@ -494,6 +481,7 @@ public class WebSocketSamplerPanel extends JPanel {
                                         .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         )
         );
+*/
 
         GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
@@ -532,12 +520,12 @@ public class WebSocketSamplerPanel extends JPanel {
                                                                                 Short.MAX_VALUE
                                                                         )
                                                         )
-                                                        .addComponent(
-                                                                jPanel6,
-                                                                GroupLayout.DEFAULT_SIZE,
-                                                                GroupLayout.DEFAULT_SIZE,
-                                                                Short.MAX_VALUE
-                                                        )
+//                                                        .addComponent(
+//                                                                paneProxy,
+//                                                                GroupLayout.DEFAULT_SIZE,
+//                                                                GroupLayout.DEFAULT_SIZE,
+//                                                                Short.MAX_VALUE
+//                                                        )
                                         )
                                         .addContainerGap()
                         )
@@ -576,13 +564,13 @@ public class WebSocketSamplerPanel extends JPanel {
                                                 GroupLayout.DEFAULT_SIZE,
                                                 GroupLayout.PREFERRED_SIZE
                                         )
-                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(
-                                                jPanel6,
-                                                GroupLayout.PREFERRED_SIZE,
-                                                GroupLayout.DEFAULT_SIZE,
-                                                GroupLayout.PREFERRED_SIZE
-                                        )
+//                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+//                                        .addComponent(
+//                                                paneProxy,
+//                                                GroupLayout.PREFERRED_SIZE,
+//                                                GroupLayout.DEFAULT_SIZE,
+//                                                GroupLayout.PREFERRED_SIZE
+//                                        )
                                         .addContainerGap()
                         )
         );
